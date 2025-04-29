@@ -4,11 +4,12 @@ use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    text::{Line, Span},
+    text::{Line, Span, Text},
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
 };
 
 use crate::society::Society;
+use crate::game::Game;
 
 /// Determines color based on mood
 fn mood_color(mood: f64) -> Color {
@@ -22,7 +23,7 @@ fn mood_color(mood: f64) -> Color {
 }
 
 /// Draws the main dashboard view
-pub fn draw_dashboard(f: &mut Frame, society: &Society, selected_group_index: usize) {
+pub fn draw_dashboard(f: &mut Frame, game: &Game, selected_group_index: usize) {
     let size = f.size();
 
     let chunks = Layout::default()
@@ -34,22 +35,27 @@ pub fn draw_dashboard(f: &mut Frame, society: &Society, selected_group_index: us
         ])
         .split(size);
 
-    draw_summary(f, society, chunks[0]);
-    draw_interest_groups(f, society, chunks[1], selected_group_index);
-    draw_active_issues(f, society, chunks[2]);
+    draw_summary(f, &game, chunks[0]);
+    draw_interest_groups(f, &game.society, chunks[1], selected_group_index);
+    draw_active_issues(f, &game.society, chunks[2]);
 }
 
 /// Draws the overall mood summary at the top
-fn draw_summary(f: &mut Frame, society: &Society, area: ratatui::layout::Rect) {
-    let mood_text = Line::from(vec![
-        Span::raw("Overall Mood: "),
-        Span::styled(
-            format!("{:.2}", society.overall_mood()),
-            Style::default().fg(mood_color(society.overall_mood())),
-        ),
-    ]);
+fn draw_summary(f: &mut Frame, game: &Game, area: ratatui::layout::Rect) {
+    let lines = vec![
+        Line::from(vec![
+            Span::raw(format!("Turn: {}", game.turn)),
+        ]),
+        Line::from(vec![
+            Span::raw("Overall Mood: "),
+            Span::styled(
+                format!("{:.2}", game.society.overall_mood()),
+                Style::default().fg(mood_color(game.society.overall_mood())),
+            ),
+        ]),
+    ];
 
-    let summary = Paragraph::new(mood_text)
+    let summary = Paragraph::new(Text::from(lines))
         .block(Block::default().borders(Borders::ALL).title("Summary"))
         .alignment(ratatui::layout::Alignment::Center);
 

@@ -5,9 +5,11 @@ mod society;
 mod app;
 mod issue;
 mod ui;
+mod game;
 
 use interest_group::InterestGroup;
 use society::Society;
+use game::Game;
 use issue::Issue;
 use app::run_app;
 
@@ -44,7 +46,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         vec![pollution]
     );
 
-    run_app(&society)?;
+    let mut game = Game::new(
+        society
+    );
+
+    run_app(&mut game)?;
 
     Ok(())
 }
